@@ -1,0 +1,39 @@
+server:
+  port: 8071
+  error:
+    include-message: ALWAYS
+    include-stacktrace: NEVER
+
+#jdbc:
+#  url: jdbc:postgresql://localhost:5432/sportup?useSSL=false
+#  username: sportupuser
+#  password: 1234567890
+#
+#spring:
+#  liquibase:
+#    enabled: true #//!!!!
+# sudo docker run --rm --name sportup -e POSTGRES_PASSWORD=1234567890 -e
+# POSTGRES_USER=sportupuser -e POSTGRES_DB=sportup -d -p 5432:5432 -v sportup:/var/lib/postgresl/data postgres
+
+auth:
+  default_role: DEFAULT
+
+spring:
+  liquibase:
+    enabled: true #//!!!!
+  datasource:
+    url: jdbc:postgresql://localhost:5432/sportup?useSSL=false
+    username: sportupuser
+    password: 1234567890
+  jpa:
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        temp:
+          use_jdbc_metadata_defaults: false
+    database-platform: org.hibernate.dialect.PostgreSQL9Dialect
+    hibernate:
+      ddl-auto: create  #//!!!!
+    show-sql: true
+
+
