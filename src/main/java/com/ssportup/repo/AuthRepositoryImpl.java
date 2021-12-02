@@ -51,7 +51,7 @@ public class AuthRepositoryImpl implements AuthRepository {
      */
     @Override
     public User findUserByUserId(String userId) {
-        String query = "Select " + fieldList() + " from user where user_id = ?";
+        String query = "Select " + fieldList() + " from users where user_id = ?";
         User user = null;
         try (PreparedStatement pstmt = connection.prepareStatement(query)) {
             pstmt.setString(1, userId);
@@ -76,7 +76,7 @@ public class AuthRepositoryImpl implements AuthRepository {
      */
     @Override
     public User findUserByLogin(String login) {
-        String query = String.format("SELECT * FROM user WHERE login ='%s' COLLATE NOCASE", login);
+        String query = String.format("SELECT * FROM users WHERE login ='%s' COLLATE NOCASE", login);
 
         User.Builder builder = new User.Builder();
         try (Statement statement = connection.createStatement();
@@ -101,7 +101,8 @@ public class AuthRepositoryImpl implements AuthRepository {
                 throw new BusinessLogicException("User not found", ErrorCodes.USER_NOT_FOUND.toString());
             }
         } catch (SQLException ex) {
-            throw new BusinessLogicException("Failed in AuthRepository.findUserByLogin method", ex, ErrorCodes.ILLEGAL_ARGUMENT.toString());
+            throw new BusinessLogicException("Failed in AuthRepository.findUserByLogin method", ex,
+                    ErrorCodes.ILLEGAL_ARGUMENT.toString());
         }
     }
 
@@ -114,7 +115,7 @@ public class AuthRepositoryImpl implements AuthRepository {
      */
     @Override
     public User findUserByTelegramChat(String chatId) {
-        String query = String.format("SELECT * FROM user WHERE telegram_chat_id ='%s'", chatId);
+        String query = String.format("SELECT * FROM users WHERE telegram_chat_id ='%s'", chatId);
 
         User.Builder builder = new User.Builder();
         try (Statement statement = connection.createStatement();
@@ -150,7 +151,7 @@ public class AuthRepositoryImpl implements AuthRepository {
      */
     @Override
     public void deleteUserId(String userId) {
-        String query = "DELETE FROM user  where user_id = ?";
+        String query = "DELETE FROM users where user_id = ?";
         try (PreparedStatement statement = connection.prepareStatement(query)) {
             statement.setString(1, userId);
             statement.execute();
@@ -164,12 +165,13 @@ public class AuthRepositoryImpl implements AuthRepository {
      * Dao method of creating a new user in DB
      *
      * @param user - what user needs to be created
-     * @return Passed user if success creating or throw exception BusinessLogicException.class if PreparedStatement.executeUpdate is failed
+     * @return Passed user if success creating or throw exception BusinessLogicException.class
+     * if PreparedStatement.executeUpdate is failed
      */
     @Override
     public User createUser(User user) {
         logger.info("Method .createUser a={}", user);
-        final String query = "INSERT INTO user VALUES (? ,? ,? ,? ,? ,? ,? ,? ,?);";
+        final String query = "INSERT INTO users VALUES (? ,? ,? ,? ,? ,? ,? ,? ,?);";
 
         try (PreparedStatement statement = connection.prepareStatement(query)) {
             statement.setString(1, user.getUserId());
@@ -196,12 +198,13 @@ public class AuthRepositoryImpl implements AuthRepository {
      * DAO method of updating user data
      *
      * @param user - what user needs to be updated
-     * @return Passed user if success updating or throw exception BusinessLogicException.class if PreparedStatement.executeUpdate is failed
+     * @return Passed user if success updating or throw exception BusinessLogicException.class
+     * if PreparedStatement.executeUpdate is failed
      */
     @Override
     public User updateUser(User user) {
         logger.info("Method .updateUser a={}", user);
-        final String query = "UPDATE user \n" +
+        final String query = "UPDATE users \n" +
                 "SET first_name = ?,\n" +
                 "last_name = ?,\n" +
                 "second_name = ?,\n" +
@@ -240,7 +243,7 @@ public class AuthRepositoryImpl implements AuthRepository {
      */
     @Override
     public List<User> getAllUsers() {
-        String query = "Select " + fieldList() + " from user";
+        String query = "Select " + fieldList() + " from users";
         List<User> users = new ArrayList<>();
         try (PreparedStatement pstmt = connection.prepareStatement(query);
              ResultSet resultSet = pstmt.executeQuery()) {
@@ -255,7 +258,8 @@ public class AuthRepositoryImpl implements AuthRepository {
 
     @Override
     public User attachTelegramChatAccount(String userId, String chatId) {
-        String query = "UPDATE \"user\"" + "SET telegram_chat_id = " + "'" + chatId + "'" + "WHERE user_id = " + "'" + userId + "'";
+        String query = "UPDATE \"users\"" + "SET telegram_chat_id = "
+                + "'" + chatId + "'" + "WHERE user_id = " + "'" + userId + "'";
         try (Statement statement = connection.createStatement()) {
             statement.execute(query);
         } catch (SQLException e) {

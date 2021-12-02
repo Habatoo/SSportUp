@@ -14,7 +14,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
- * Класс конфигурации контроллера.
+ * Класс контроллера регистрации и аутентификации.
  *
  * @author habatoo
  */
@@ -31,6 +31,11 @@ public class AuthControllerImpl implements AuthController {
         this.authService = authService;
     }
 
+    /**
+     * @method info - при http GET запросе по адресу .../auth/info
+     * возвращает строку.
+     * @return объект типа {@link String} в виде "AuthController " and current date and time
+     */
     @GetMapping("info")
     public String info() {
         logger.info("method .info invoked");
@@ -38,12 +43,13 @@ public class AuthControllerImpl implements AuthController {
     }
 
     /**
-     * Gets Parameter (userID) by REST
-     * Redirects request to authService to find user in database with specified userID
-     * or throws BusinessLogicException
+     * @method getUserByUserId - при http GET запросе по адресу .../auth/user/byUserId
+     * возвращает объект пользователя.
+     * Перенаправляет запрос на @method authService для поиска пользователя по параметру userID
+     * или throws BusinessLogicException.
      *
-     * @param userId - user id
-     * @return User
+     * @param userId - user id пользователя
+     * @return объект типа {@link User}
      */
     @Override
     @GetMapping("/user/byUserId")
@@ -52,12 +58,13 @@ public class AuthControllerImpl implements AuthController {
     }
 
     /**
-     * Gets Parameter (login) by REST
-     * Redirects request to authService to find user in database with specified login
-     * or throws BusinessLogicException
+     * @method getUserByUserId - при http GET запросе по адресу .../auth/user/byLogin
+     * возвращает объект пользователя.
+     * Перенаправляет запрос на @method authService для поиска пользователя по параметру login
+     * или throws BusinessLogicException.
      *
-     * @param login - user login
-     * @return User
+     * @param login user login
+     * @return объект типа {@link User}
      */
     @Override
     @GetMapping("/user/byLogin")
@@ -68,6 +75,15 @@ public class AuthControllerImpl implements AuthController {
         return user;
     }
 
+    /**
+     * @method getUserByTelegramChat - при http GET запросе по адресу .../auth/user/byTelegramChat
+     * возвращает объект пользователя.
+     * Перенаправляет запрос на @method authService для поиска пользователя по параметру chatId
+     * или throws BusinessLogicException.
+     *
+     * @param chatId user chatId id пользователя в телеграмм
+     * @return объект типа {@link User}
+     */
     @Override
     @GetMapping("/user/byTelegramChat")
     public User getUserByTelegramChat(@RequestParam("chatId") String chatId) {
@@ -77,6 +93,14 @@ public class AuthControllerImpl implements AuthController {
         return user;
     }
 
+    /**
+     * @method deleteUser - при http DELETE запросе по адресу .../auth/user/{userId}
+     * Перенаправляет запрос на @method authService для поиска пользователя по параметру userid
+     * и удалению или throws BusinessLogicException.
+     *
+     * @param userid user chatId id пользователя в телеграмм
+     * @return объект типа {@link User}
+     */
     @Override
     @DeleteMapping("/user/{userId}")
     public void deleteUser(@PathVariable("userId") String userid) {
@@ -84,9 +108,11 @@ public class AuthControllerImpl implements AuthController {
     }
 
     /**
-     * Method creates user in database and returns created user.
+     * @method createUser - при http POST запросе по адресу .../auth/user/
+     * Перенаправляет запрос на @method authService с сформированным объектом типа {@link User}
      *
-     * @return User
+     * @param user объект типа {@link User}
+     * @return объект типа {@link User}
      */
     @PostMapping("/user")
     @Override
@@ -128,7 +154,7 @@ public class AuthControllerImpl implements AuthController {
      * Method take a collection of roles in parameters and return list of user with this roles
      *
      * @param roles
-     * @return List<User>
+     * @return возвращает объект типа {@link List<User>}
      */
     @Override
     @GetMapping("/user/all/byRoles")

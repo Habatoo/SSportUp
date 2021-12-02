@@ -1,5 +1,7 @@
 package com.ssportup.model;
 
+import javax.persistence.Entity;
+import javax.persistence.Table;
 import java.time.LocalDate;
 import java.util.Objects;
 import java.util.Set;
@@ -9,6 +11,7 @@ import java.util.Set;
  *
  * @author habatoo
  */
+@Table(	name = "users")
 public class User {
     private String userId;
     private String firstName;

@@ -123,7 +123,8 @@ public class AuthServiceImpl implements AuthService {
      * Service method of creating user
      *
      * @param user - user,that needs to be created in DB
-     * @return Passed user if success creating or throw exception BusinessLogicException.class if USER_NOT_CONSISTENT or USER_ALREADY_EXISTS
+     * @return Passed user if success creating or throw exception BusinessLogicException.class
+     * if USER_NOT_CONSISTENT or USER_ALREADY_EXISTS
      */
     @Override
     public User createUser(User user) {
@@ -146,7 +147,8 @@ public class AuthServiceImpl implements AuthService {
      * Service method of updating user
      *
      * @param user - user,that needs to be updated in DB
-     * @return Passed user if success updating or throw exception BusinessLogicException.class if USER_NOT_CONSISTENT or USER_NOT_EXISTS
+     * @return Passed user if success updating or throw exception BusinessLogicException.class
+     * if USER_NOT_CONSISTENT or USER_NOT_EXISTS
      */
     @Override
     public User updateUser(User user) {
@@ -174,7 +176,8 @@ public class AuthServiceImpl implements AuthService {
     }
 
     /**
-     * Method gets collection of roles in params and gets all users from repository and return user list only have a role contained in roles collection
+     * Method gets collection of roles in params and gets all users from repository and return user
+     * list only have a role contained in roles collection
      *
      * @param roles
      * @return List<User>
