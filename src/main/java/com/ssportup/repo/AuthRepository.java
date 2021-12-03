@@ -14,12 +14,12 @@ public interface AuthRepository {
     /**
      * Получить информацию о пользователе
      */
-    User findUserByLogin(String login);
+    User findUserByUserName(String userName);
 
     /**
-     * Получить информацию о пользователе по chat id
+     * Получить информацию о пользователе по telegram chat id
      */
-    User findUserByTelegramChat(String chatId);
+    User findUserByTelegramChatId(String telegramChatId);
 
     /**
      * Удалить информацию о пользователе
@@ -44,7 +44,7 @@ public interface AuthRepository {
     /**
      * Приявязать аккаунт телеграма к пользователю.
      * @param userId - user id
-     * @param chatId - chat id
+     * @param telegramChatId - telegram chat id
      */
-    User attachTelegramChatAccount(String userId, String chatId);
+    User attachTelegramChatAccount(String userId, String telegramChatId);
 }

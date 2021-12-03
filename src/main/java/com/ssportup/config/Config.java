@@ -11,7 +11,8 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 
 /**
- * Класс конфигурации микросервиса.
+ * Класс конфигурации микросервиса
+ * создает соединение с БД по переданному url.
  *
  * @author habatoo
  */
@@ -27,6 +28,11 @@ public class Config {
     @Value("${spring.datasource.password}")
     private String password;
 
+    /**
+     * Метод {@link Config#userRepositoryBean}
+     * @return объект {@link AuthRepository} для обращения к методам работы с БД.
+     * @throws SQLException
+     */
     @Bean
     public AuthRepository userRepositoryBean() throws SQLException {
         Connection connection = DriverManager.getConnection(url, username, password);

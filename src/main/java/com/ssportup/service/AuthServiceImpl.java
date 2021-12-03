@@ -63,30 +63,32 @@ public class AuthServiceImpl implements AuthService {
      * Returns registered user from database with specified login
      * or throws BusinessLogicException
      *
-     * @param login - user login
+     * @param userName - user login
      * @return User
      */
     @Override
-    public User getUserByLogin(String login) {
-        logger.info("Method AuthService.getUserByLogin login={}", login);
-        User user = authRepository.findUserByLogin(login);
+    public User getUserByLogin(String userName) {
+        logger.info("Method AuthService.getUserByLogin login={}", userName);
+        User user = authRepository.findUserByUserName(userName);
         if (user == null) {
             logger.error("User not found");
             throw new BusinessLogicException("User not found", ErrorCodes.USER_NOT_FOUND.toString());
         }
-        logger.info("Method AuthService.getUserByTelegramChat completed login={} user={}", login, user);
+        logger.info("Method AuthService.getUserByTelegramChat completed userName={} user={}", userName, user);
         return user;
     }
 
     @Override
-    public User getUserByTelegramChat(String chatId) {
-        logger.info("Method AuthService.getUserByTelegramChat chatId={}", chatId);
-        User user = authRepository.findUserByTelegramChat(chatId);
+    public User getUserByTelegramChat(String telegramChatId) {
+        logger.info("Method AuthService.getUserByTelegramChat telegramChatId={}", telegramChatId);
+        User user = authRepository.findUserByTelegramChatId(telegramChatId);
         if (user == null) {
             logger.error("User not found");
             throw new BusinessLogicException("User not found", ErrorCodes.USER_NOT_FOUND.toString());
         }
-        logger.info("Method AuthService.getUserByTelegramChat completed chatId={} user={}", chatId, user);
+        logger.info(
+                "Method AuthService.getUserByTelegramChat completed telegramChatId={} user={}",
+                telegramChatId, user);
         return user;
     }
 
@@ -130,8 +132,9 @@ public class AuthServiceImpl implements AuthService {
     public User createUser(User user) {
         logger.info("Method .createUser a={}", user);
 
-        String userId = Objects.nonNull(user.getUserId()) ? user.getUserId() : UUID.randomUUID().toString();
-        user.setUserId(userId);
+//        String userId = Objects.nonNull(user.getUserId()) ? user.getUserId() : UUID.randomUUID().toString();
+//        user.setUserId(userId);
+        String userId = user.getUserId();
 
         User userFromTable = authRepository.findUserByUserId(userId);
         if (userFromTable != null) {

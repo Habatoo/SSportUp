@@ -3,6 +3,7 @@ package com.ssportup.model;
 import javax.persistence.Entity;
 import javax.persistence.Table;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Objects;
 import java.util.Set;
 
@@ -14,24 +15,22 @@ import java.util.Set;
 @Table(	name = "users")
 public class User {
     private String userId;
-    private String firstName;
-    private String lastName;
-    private String secondName;
-    private LocalDate birthDate;
-    private String login;
-    private String password;
+    private String userName;
+    private String userEmail;
+    private String userPassword;
     private String telegramChatId;
+    private LocalDateTime userCreationDate;
+    private LocalDateTime lastVisitedDate;
     private Set<String> roles;
 
     private User(Builder builder) {
         this.userId = builder.userId;
-        this.firstName = builder.firstName;
-        this.lastName = builder.lastName;
-        this.secondName = builder.secondName;
-        this.birthDate = builder.birthDate;
-        this.login = builder.login;
-        this.password = builder.password;
+        this.userName = builder.userName;
+        this.userEmail = builder.userEmail;
+        this.userPassword = builder.userPassword;
         this.telegramChatId = builder.telegramChatId;
+        this.userCreationDate = builder.userCreationDate;
+        this.lastVisitedDate = builder.lastVisitedDate;
         this.roles = builder.roles;
     }
 
@@ -45,52 +44,28 @@ public class User {
         this.userId = userId;
     }
 
-    public String getFirstName() {
-        return firstName;
+    public String getUserName() {
+        return userName;
     }
 
-    public void setFirstName(String firstName) {
-        this.firstName = firstName;
+    public void setUserName(String userName) {
+        this.userName = userName;
     }
 
-    public String getLastName() {
-        return lastName;
+    public String getUserEmail() {
+        return userEmail;
     }
 
-    public void setLastName(String lastName) {
-        this.lastName = lastName;
+    public void setUserEmail(String userEmail) {
+        this.userEmail = userEmail;
     }
 
-    public String getSecondName() {
-        return secondName;
+    public String getUserPassword() {
+        return userPassword;
     }
 
-    public void setSecondName(String secondName) {
-        this.secondName = secondName;
-    }
-
-    public LocalDate getBirthDate() {
-        return birthDate;
-    }
-
-    public void setBirthDate(LocalDate birthDate) {
-        this.birthDate = birthDate;
-    }
-
-    public String getLogin() {
-        return login;
-    }
-
-    public void setLogin(String login) {
-        this.login = login;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
+    public void setUserPassword(String userPassword) {
+        this.userPassword = userPassword;
     }
 
     public String getTelegramChatId() {
@@ -99,6 +74,22 @@ public class User {
 
     public void setTelegramChatId(String telegramChatId) {
         this.telegramChatId = telegramChatId;
+    }
+
+    public LocalDateTime getUserCreationDate() {
+        return userCreationDate;
+    }
+
+    public void setUserCreationDate(LocalDateTime userCreationDate) {
+        this.userCreationDate = userCreationDate;
+    }
+
+    public LocalDateTime getLastVisitedDate() {
+        return lastVisitedDate;
+    }
+
+    public void setLastVisitedDate(LocalDateTime lastVisitedDate) {
+        this.lastVisitedDate = lastVisitedDate;
     }
 
     public Set<String> getRoles() {
@@ -111,13 +102,12 @@ public class User {
 
     public static class Builder {
         private String userId;
-        private String firstName;
-        private String lastName;
-        private String secondName;
-        private LocalDate birthDate;
-        private String login;
-        private String password;
+        private String userName;
+        private String userPassword;
+        private String userEmail;
         private String telegramChatId;
+        private LocalDateTime userCreationDate;
+        private LocalDateTime lastVisitedDate;
         private Set<String> roles;
 
         public Builder setUserId(String userId) {
@@ -125,38 +115,33 @@ public class User {
             return this;
         }
 
-        public Builder setFirstName(String firstName) {
-            this.firstName = firstName;
+        public Builder setUserName(String userName) {
+            this.userName = userName;
             return this;
         }
 
-        public Builder setLastName(String lastName) {
-            this.lastName = lastName;
+        public Builder setUserPassword(String userPassword) {
+            this.userPassword = userPassword;
             return this;
         }
 
-        public Builder setSecondName(String secondName) {
-            this.secondName = secondName;
-            return this;
-        }
-
-        public Builder setBirthDate(LocalDate birthDate) {
-            this.birthDate = birthDate;
-            return this;
-        }
-
-        public Builder setLogin(String login) {
-            this.login = login;
-            return this;
-        }
-
-        public Builder setPassword(String password) {
-            this.password = password;
+        public Builder setUserEmail(String userEmail) {
+            this.userEmail = userEmail;
             return this;
         }
 
         public Builder setTelegramChatId(String telegramChatId) {
             this.telegramChatId = telegramChatId;
+            return this;
+        }
+
+        public Builder setUserCreationDate(LocalDateTime userCreationDate) {
+            this.userCreationDate = userCreationDate;
+            return this;
+        }
+
+        public Builder setLastVisitedDate(LocalDateTime lastVisitedDate) {
+            this.lastVisitedDate = lastVisitedDate;
             return this;
         }
 
@@ -175,11 +160,22 @@ public class User {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         User user = (User) o;
-        return userId.equals(user.userId) && Objects.equals(firstName, user.firstName) && Objects.equals(lastName, user.lastName) && Objects.equals(secondName, user.secondName) && Objects.equals(birthDate, user.birthDate) && Objects.equals(login, user.login) && Objects.equals(password, user.password) && Objects.equals(telegramChatId, user.telegramChatId) && Objects.equals(roles, user.roles);
+        return userId.equals(user.userId) &&
+                Objects.equals(userName, user.userName) &&
+                Objects.equals(userEmail, user.userEmail) &&
+                Objects.equals(userPassword, user.userPassword) &&
+                Objects.equals(telegramChatId, user.telegramChatId) &&
+                Objects.equals(roles, user.roles);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(userId, firstName, lastName, secondName, birthDate, login, password, telegramChatId, roles);
+        return Objects.hash(
+                userId,
+                userName,
+                userPassword,
+                userEmail,
+                telegramChatId,
+                roles);
     }
 }

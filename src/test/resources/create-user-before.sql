@@ -1,45 +1,42 @@
 DROP TABLE IF EXISTS users CASCADE;
 
-CREATE TABLE IF NOT EXISTS users(
-user_id  char(36),
-first_name varchar(16),
-last_name varchar(16),
-second_name varchar(16),
-birth_date timestamp,
-login varchar(16),
-password varchar(20),
-telegram_chat_id char(36),
-roles varchar(255));
+CREATE TABLE IF NOT EXISTS users (
+user_id bigint auto_increment,
+user_name varchar(255),
+user_password varchar(255),
+user_email varchar(255),
+telegram_chat_id varchar(255),
+user_creation_date timestamp,
+last_visited_date timestamp,
+roles varchar(255),
+primary key (user_id)
+);
 
-INSERT INTO users
+INSERT INTO users (
+user_name, user_password, user_email, telegram_chat_id, user_creation_date, last_visited_date, roles
+)
 VALUES (
-'lllll-lllll',
- 'admin',
- 'adminovich',
+ 'administrator',
+ '$2a$10$7JGsM41kbXX7/vJ2lc3pb.wdoIoANWTme.NErCU2TSv1RcPnDaBaS',
  'admin@a.com',
- parsedatetime('17-09-2012 18:47:52.69', 'dd-MM-yyyy hh:mm:ss.SS'),
- 'admin1',
- '12345',
- 't-admin',
+  't-admin',
+  {ts '2012-10-17 18:47:52.69'},
+  CURRENT_TIMESTAMP(),
  'admin, writer'
  ), (
-'kkkkk-kkkkk',
-'teacher',
-'teacherovich',
-'teacher@a.com',
-parsedatetime('17-10-2012 18:47:52.69', 'dd-MM-yyyy hh:mm:ss.SS'),
-'teacher1',
-'12345',
-'t-teacher',
-'writer'
+'moderator',
+ '$2a$10$7JGsM41kbXX7/vJ2lc3pb.wdoIoANWTme.NErCU2TSv1RcPnDaBaS',
+'moderator@a.com',
+'t-moderator',
+{ts '2012-11-17 18:47:52.69'},
+CURRENT_TIMESTAMP(),
+'moderator, writer'
 ), (
-'mmmmm-mmmmm',
 'user',
-'userovich',
+ '$2a$10$7JGsM41kbXX7/vJ2lc3pb.wdoIoANWTme.NErCU2TSv1RcPnDaBaS',
 'user@a.com',
-parsedatetime('17-12-2012 18:47:52.69', 'dd-MM-yyyy hh:mm:ss.SS'),
-'user1',
-'12345',
 't-user',
-'user'
+{ts '2012-12-17 18:47:52.69'},
+CURRENT_TIMESTAMP(),
+'user, writer'
 );

@@ -30,8 +30,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -56,6 +58,12 @@ class AuthControllerImplTest {
     AuthControllerImpl authController;
 
     @Autowired
+    RegisterControllerImpl registerController;
+
+    @Autowired
+    UserControllerImpl userController;
+
+    @Autowired
     AuthRepositoryImpl authRepository;
 
     private User user;
@@ -68,16 +76,16 @@ class AuthControllerImplTest {
     @BeforeEach
     void setUp() throws JsonProcessingException {
         roles = new HashSet<String>();
-        roles.add("user");
+        roles.add("user, writer");
 
         user = new User.Builder()
-                .setUserId("ooooo-ooooo")
-                .setFirstName("name")
-                .setLastName("last")
-                .setSecondName("second")
-                .setLogin("login")
-                .setPassword("12345")
-                .setTelegramChatId("t-name")
+                .setUserId("1")
+                .setUserName("name")
+                .setUserPassword("$2a$10$7JGsM41kbXX7/vJ2lc3pb.wdoIoANWTme.NErCU2TSv1RcPnDaBaS")
+                .setUserEmail("user2@u.com")
+                .setTelegramChatId("t-user2")
+                .setUserCreationDate(LocalDateTime.parse("2012-11-11T10:10:10.000"))
+                .setLastVisitedDate(LocalDateTime.now())
                 .setRoles(roles)
                 .build();
 
@@ -100,11 +108,15 @@ class AuthControllerImplTest {
      * Сценарий проверяет успешность создания
      * {@link AuthRepositoryImpl}
      * {@link AuthControllerImpl}
+     * {@link RegisterControllerImpl}
+     * {@link UserControllerImpl}
      */
     @Test
     public void loadControllers_Test() {
         assertThat(authRepository).isNotNull();
         assertThat(authController).isNotNull();
+        assertThat(registerController).isNotNull();
+        assertThat(userController).isNotNull();
     }
 
     @Test
@@ -131,7 +143,7 @@ class AuthControllerImplTest {
      * Метод тестирует удаление объекта {@link User}.
      * при запросе типа DELETE по адресу "/auth/user/{id}"
      * где id - индекс id удаляемого объекта.
-     * Сценарий проверяет возможность удаление пользователя с id = "ooooo-ooooo"
+     * Сценарий проверяет возможность удаление пользователя с id = "1"
      * пользователем с ролью (user).
      */
     @Test
@@ -146,7 +158,7 @@ class AuthControllerImplTest {
      * Метод тестирует создание объекта {@link User}.
      * при запросе типа POST по адресу "/auth/user/"
      * где id - индекс id удаляемого объекта.
-     * Сценарий проверяет возможность создания пользователя с id = "ooooo-ooooo"
+     * Сценарий проверяет возможность создания пользователя с id = "1"
      * с ролью (user).
      */
     @Test

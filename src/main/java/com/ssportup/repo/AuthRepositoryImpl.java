@@ -1,17 +1,16 @@
 package com.ssportup.repo;
 
+import com.ssportup.exception.BusinessLogicException;
+import com.ssportup.exception.ErrorCodes;
+import com.ssportup.model.User;
+import com.ssportup.service.AuthServiceImpl;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
-import com.ssportup.model.User;
-import com.ssportup.exception.BusinessLogicException;
-import com.ssportup.exception.ErrorCodes;
-import com.ssportup.service.AuthServiceImpl;
 
 import javax.annotation.PreDestroy;
 import java.sql.*;
-import java.time.LocalDate;
-import java.time.format.DateTimeParseException;
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -25,13 +24,12 @@ public class AuthRepositoryImpl implements AuthRepository {
     private static final Logger logger = LogManager.getLogger(AuthServiceImpl.class);
     private final String[] fields = {
             "user_id",
-            "first_name",
-            "last_name",
-            "second_name",
-            "birth_date",
-            "login",
-            "password",
+            "user_name",
+            "user_password",
+            "user_email",
             "telegram_chat_id",
+            "user_creation_date",
+            "last_visited_date",
             "roles"
     };
     private final Connection connection;
@@ -53,9 +51,9 @@ public class AuthRepositoryImpl implements AuthRepository {
     public User findUserByUserId(String userId) {
         String query = "Select " + fieldList() + " from users where user_id = ?";
         User user = null;
-        try (PreparedStatement pstmt = connection.prepareStatement(query)) {
-            pstmt.setString(1, userId);
-            try (ResultSet resultSet = pstmt.executeQuery()) {
+        try (PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+            preparedStatement.setString(1, userId);
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
                 if (resultSet.next()) {
                     user = createUserFromResultSet(resultSet);
                 }
@@ -66,40 +64,18 @@ public class AuthRepositoryImpl implements AuthRepository {
         return user;
     }
 
-
     /**
      * Returns registered user from database with specified login
      * or null if user does not exist
      *
-     * @param login - user login
+     * @param userName - user login
      * @return User or null
      */
     @Override
-    public User findUserByLogin(String login) {
-        String query = String.format("SELECT * FROM users WHERE login ='%s' COLLATE NOCASE", login);
-
-        User.Builder builder = new User.Builder();
-        try (Statement statement = connection.createStatement();
-             ResultSet resultSet = statement.executeQuery(query)) {
-            if (resultSet.next()) {
-                builder.setUserId(resultSet.getString("user_id"));
-                builder.setFirstName(resultSet.getString("first_name"));
-                builder.setLastName(resultSet.getString("last_name"));
-                builder.setSecondName(resultSet.getString("second_name"));
-                builder.setBirthDate(LocalDate.parse(resultSet.getString("birth_date")));
-                builder.setLogin(resultSet.getString("login"));
-                builder.setPassword(resultSet.getString("password"));
-                builder.setTelegramChatId(resultSet.getString("telegram_chat_id"));
-                String[] arrayRoles = resultSet.getString("roles").split(",");
-                Set<String> roles = new HashSet<>();
-                for (String s : arrayRoles) {
-                    roles.add(s);
-                }
-                builder.setRoles(roles);
-                return builder.build();
-            } else {
-                throw new BusinessLogicException("User not found", ErrorCodes.USER_NOT_FOUND.toString());
-            }
+    public User findUserByUserName(String userName) {
+        String query = String.format("SELECT * FROM users WHERE user_name ='%s' COLLATE NOCASE", userName);
+        try {
+            return runQuery(query);
         } catch (SQLException ex) {
             throw new BusinessLogicException("Failed in AuthRepository.findUserByLogin method", ex,
                     ErrorCodes.ILLEGAL_ARGUMENT.toString());
@@ -110,37 +86,49 @@ public class AuthRepositoryImpl implements AuthRepository {
      * Returns registered user from database with specified chat id
      * or null if user does not exist
      *
-     * @param chatId - user login
+     * @param telegramChatId - user login
      * @return User or null
      */
     @Override
-    public User findUserByTelegramChat(String chatId) {
-        String query = String.format("SELECT * FROM users WHERE telegram_chat_id ='%s'", chatId);
-
-        User.Builder builder = new User.Builder();
-        try (Statement statement = connection.createStatement();
-             ResultSet resultSet = statement.executeQuery(query)) {
-            if (resultSet.next()) {
-                builder.setUserId(resultSet.getString("user_id"));
-                builder.setFirstName(resultSet.getString("first_name"));
-                builder.setLastName(resultSet.getString("last_name"));
-                builder.setSecondName(resultSet.getString("second_name"));
-                builder.setBirthDate(LocalDate.parse(resultSet.getString("birth_date")));
-                builder.setLogin(resultSet.getString("login"));
-                builder.setPassword(resultSet.getString("password"));
-                builder.setTelegramChatId(resultSet.getString("telegram_chat_id"));
-                String[] arrayRoles = resultSet.getString("roles").split(",");
-                Set<String> roles = new HashSet<>();
-                for (String s : arrayRoles) {
-                    roles.add(s);
-                }
-                builder.setRoles(roles);
-                return builder.build();
-            } else {
-                return null;
-            }
+    public User findUserByTelegramChatId(String telegramChatId) {
+        String query = String.format("SELECT * FROM users WHERE telegram_chat_id ='%s'", telegramChatId);
+        try {
+            return runQuery(query);
         } catch (SQLException ex) {
-            throw new BusinessLogicException("Failed find user .findUserByTelegramChat", ex, ErrorCodes.ILLEGAL_ARGUMENT.toString());
+            throw new BusinessLogicException("Failed find user .findUserByTelegramChat", ex,
+                    ErrorCodes.ILLEGAL_ARGUMENT.toString());
+        }
+    }
+
+    /**
+     * Метод выполнения запросов в ResultSet
+     *
+     * @param query запрос на выполнение
+     * @return объект User
+     * @throws SQLException
+     */
+    private User runQuery(String query) throws SQLException {
+        User.Builder builder = new User.Builder();
+        Statement statement = connection.createStatement();
+        ResultSet resultSet = statement.executeQuery(query);
+        if (resultSet.next()) {
+            builder.setUserId(resultSet.getString("user_id"));
+            builder.setUserName(resultSet.getString("user_name"));
+            builder.setUserPassword(resultSet.getString("user_password"));
+            builder.setUserEmail(resultSet.getString("user_email"));
+            builder.setTelegramChatId(resultSet.getString("telegram_chat_id"));
+            builder.setUserCreationDate(LocalDateTime.parse(resultSet.getString("user_creation_date")));
+            builder.setLastVisitedDate(LocalDateTime.parse(resultSet.getString("last_visited_date")));
+            String[] arrayRoles = resultSet.getString("roles").split(",");
+            Set<String> roles = new HashSet<>();
+            for (String s : arrayRoles) {
+                roles.add(s);
+            }
+            builder.setRoles(roles);
+            return builder.build();
+        } else {
+            throw new BusinessLogicException("User not found",
+                    ErrorCodes.USER_NOT_FOUND.toString());
         }
     }
 
@@ -160,6 +148,25 @@ public class AuthRepositoryImpl implements AuthRepository {
         }
     }
 
+    /**
+     * Метод обновляет данные через PreparedStatement
+     *
+     * @param user
+     * @param query
+     * @throws SQLException
+     */
+    private void setUserStatement(User user, String query) throws SQLException {
+        PreparedStatement statement = connection.prepareStatement(query);
+        // statement.setString(1, user.getUserId());
+        statement.setString(2, user.getUserName());
+        statement.setString(3, user.getUserPassword());
+        statement.setString(4, user.getUserEmail());
+        statement.setString(5, user.getTelegramChatId());
+        statement.setString(6, user.getUserCreationDate().toString());
+        statement.setString(7, user.getLastVisitedDate().toString());
+        statement.setString(8, getRolesForQuery(user));
+        statement.executeUpdate();
+    }
 
     /**
      * Dao method of creating a new user in DB
@@ -171,19 +178,10 @@ public class AuthRepositoryImpl implements AuthRepository {
     @Override
     public User createUser(User user) {
         logger.info("Method .createUser a={}", user);
-        final String query = "INSERT INTO users VALUES (? ,? ,? ,? ,? ,? ,? ,? ,?);";
+        final String query = "INSERT INTO users VALUES (? ,? ,? ,? ,? ,? ,? ,?);";
 
-        try (PreparedStatement statement = connection.prepareStatement(query)) {
-            statement.setString(1, user.getUserId());
-            statement.setString(2, user.getFirstName());
-            statement.setString(3, user.getLastName());
-            statement.setString(4, user.getSecondName());
-            statement.setString(5, getBirthDateForQuery(user));
-            statement.setString(6, user.getLogin());
-            statement.setString(7, user.getPassword());
-            statement.setString(8, user.getTelegramChatId());
-            statement.setString(9, getRolesForQuery(user));
-            statement.executeUpdate();
+        try {
+            setUserStatement(user, query);
         } catch (SQLException ex) {
             String message = "Failed to .createUser error={}" + ex;
             logger.error(message, ex);
@@ -205,33 +203,22 @@ public class AuthRepositoryImpl implements AuthRepository {
     public User updateUser(User user) {
         logger.info("Method .updateUser a={}", user);
         final String query = "UPDATE users \n" +
-                "SET first_name = ?,\n" +
-                "last_name = ?,\n" +
-                "second_name = ?,\n" +
-                "birth_date = ?,\n" +
-                "login = ?,\n" +
-                "password = ?,\n" +
+                "SET user_name = ?,\n" +
+                "user_password = ?,\n" +
+                "user_email = ?,\n" +
                 "telegram_chat_id = ?,\n" +
+                "user_creation_date = ?,\n" +
+                "last_visited_date = ?,\n" +
                 "roles = ?\n" +
                 "WHERE user_id = ?;";
 
-        try (PreparedStatement statement = connection.prepareStatement(query)) {
-            statement.setString(1, user.getFirstName());
-            statement.setString(2, user.getLastName());
-            statement.setString(3, user.getSecondName());
-            statement.setString(4, getBirthDateForQuery(user));
-            statement.setString(5, user.getLogin());
-            statement.setString(6, user.getPassword());
-            statement.setString(7, user.getTelegramChatId());
-            statement.setString(8, this.getRolesForQuery(user));
-            statement.setString(9, user.getUserId());
-            statement.executeUpdate();
+        try {
+            setUserStatement(user, query);
         } catch (SQLException ex) {
             String message = "Failed to .updateUser error={}" + ex;
             logger.error(message, ex);
             throw new BusinessLogicException(ex.getMessage(), ex, ErrorCodes.ILLEGAL_STATE.toString());
         }
-
         logger.info("Method .updateUser completed user={}", user);
         return user;
     }
@@ -245,8 +232,8 @@ public class AuthRepositoryImpl implements AuthRepository {
     public List<User> getAllUsers() {
         String query = "Select " + fieldList() + " from users";
         List<User> users = new ArrayList<>();
-        try (PreparedStatement pstmt = connection.prepareStatement(query);
-             ResultSet resultSet = pstmt.executeQuery()) {
+        try (PreparedStatement preparedStatement = connection.prepareStatement(query);
+             ResultSet resultSet = preparedStatement.executeQuery()) {
             while (resultSet.next()) {
                 users.add(createUserFromResultSet(resultSet));
             }
@@ -257,9 +244,9 @@ public class AuthRepositoryImpl implements AuthRepository {
     }
 
     @Override
-    public User attachTelegramChatAccount(String userId, String chatId) {
+    public User attachTelegramChatAccount(String userId, String telegramChatId) {
         String query = "UPDATE \"users\"" + "SET telegram_chat_id = "
-                + "'" + chatId + "'" + "WHERE user_id = " + "'" + userId + "'";
+                + "'" + telegramChatId + "'" + "WHERE user_id = " + "'" + userId + "'";
         try (Statement statement = connection.createStatement()) {
             statement.execute(query);
         } catch (SQLException e) {
@@ -287,16 +274,6 @@ public class AuthRepositoryImpl implements AuthRepository {
                 .collect(Collectors.joining(","));
     }
 
-    private String getBirthDateForQuery(User user) {
-        LocalDate localDate = user.getBirthDate();
-
-        if (localDate == null) {
-            return null;
-        }
-
-        return localDate.toString();
-    }
-
     private String fieldList() {
         return String.join(", ", fields);
     }
@@ -305,31 +282,15 @@ public class AuthRepositoryImpl implements AuthRepository {
         User.Builder userBuilder = new User.Builder();
         User user = userBuilder
                 .setUserId(resultSet.getString("user_id"))
-                .setFirstName(resultSet.getString("first_name"))
-                .setLastName(resultSet.getString("last_name"))
-                .setSecondName(resultSet.getString("second_name"))
-                .setBirthDate(getBirthDayFromResultSet(resultSet))
-                .setLogin(resultSet.getString("login"))
-                .setPassword(resultSet.getString("password"))
+                .setUserName(resultSet.getString("user_name"))
+                .setUserPassword(resultSet.getString("user_password"))
+                .setUserEmail(resultSet.getString("user_email"))
                 .setTelegramChatId(resultSet.getString("telegram_chat_id"))
+                .setUserCreationDate(LocalDateTime.parse(resultSet.getString("user_creation_date")))
+                .setLastVisitedDate(LocalDateTime.parse(resultSet.getString("last_visited_date")))
                 .setRoles(getRolesFromResultSet(resultSet))
                 .build();
         return user;
-    }
-
-    private LocalDate getBirthDayFromResultSet(ResultSet resultSet) throws SQLException {
-        String value = resultSet.getString("birth_date");
-
-        if (value == null) {
-            return null;
-        }
-
-        try {
-            LocalDate localDate = LocalDate.parse(value);
-            return localDate;
-        } catch (DateTimeParseException exception) {
-            return null;
-        }
     }
 
     private Set<String> getRolesFromResultSet(ResultSet resultSet) throws SQLException {
